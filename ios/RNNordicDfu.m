@@ -185,8 +185,8 @@ didOccurWithMessage:(NSString * _Nonnull)message
 RCT_EXPORT_METHOD(startDFU:(NSString *)deviceAddress
                   deviceName:(NSString *)deviceName
                   filePath:(NSString *)filePath
-                  packetReceiptNotificationParameter:(NSInteger *)packetReceiptNotificationParameter
-                  alternativeAdvertisingNameEnabled:(BOOL *)alternativeAdvertisingNameEnabled
+                  packetReceiptNotificationParameter:(nonnull NSNumber *)packetReceiptNotificationParameter
+                  alternativeAdvertisingNameEnabled:(nonnull NSNumber *)alternativeAdvertisingNameEnabled
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
@@ -209,7 +209,9 @@ RCT_EXPORT_METHOD(startDFU:(NSString *)deviceAddress
       NSUUID * uuid = [[NSUUID alloc] initWithUUIDString:deviceAddress];
 
       // Change for iOS 13
-      [NSThread sleepForTimeInterval: 1]; //Work around for not finding the peripheral in iOS 13
+      if (@available(iOS 13, *)) {
+        [NSThread sleepForTimeInterval: 1]; //Work around for not finding the peripheral in iOS 13
+      }
       // End change for iOS 13
       
       NSArray<CBPeripheral *> * peripherals = [centralManager retrievePeripheralsWithIdentifiers:@[uuid]];
@@ -240,12 +242,13 @@ RCT_EXPORT_METHOD(startDFU:(NSString *)deviceAddress
             initiator.logger = self;
             initiator.delegate = self;
             initiator.progressDelegate = self;
-            initiator.packetReceiptNotificationParameter = packetReceiptNotificationParameter;
-            initiator.alternativeAdvertisingNameEnabled = alternativeAdvertisingNameEnabled;
+            initiator.packetReceiptNotificationParameter = 6;
+            initiator.alternativeAdvertisingNameEnabled = YES;
 
             // Change for iOS 13
-            initiator.packetReceiptNotificationParameter = 1; //Rate limit the DFU using PRN.
-            [NSThread sleepForTimeInterval: 2]; //Work around for being stuck in iOS 13
+            if (@available(iOS 13, *)) {
+              [NSThread sleepForTimeInterval: 2]; //Work around for being stuck in iOS 13
+            }
             // End change for iOS 13
 
             DFUServiceController * controller = [initiator start];
