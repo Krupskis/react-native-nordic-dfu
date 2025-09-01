@@ -96,22 +96,29 @@ public class RNNordicDfuModule extends ReactContextBaseJavaModule implements Lif
     }
 
 
-    @Override
+   @Override
     public void onHostResume() {
-        DfuServiceListenerHelper.registerProgressListener(this.reactContext, mDfuProgressListener);
-
+        ReactApplicationContext ctx = getReactApplicationContext();
+        if (ctx != null) {
+            DfuServiceListenerHelper.registerProgressListener(ctx, mDfuProgressListener);
+        }
     }
-
+    
     @Override
     public void onHostPause() {
+        ReactApplicationContext ctx = getReactApplicationContext();
+        if (ctx != null) {
+            DfuServiceListenerHelper.unregisterProgressListener(ctx, mDfuProgressListener);
+        }
     }
-
+    
     @Override
     public void onHostDestroy() {
-        DfuServiceListenerHelper.unregisterProgressListener(this.reactContext, mDfuProgressListener);
-
+        ReactApplicationContext ctx = getReactApplicationContext();
+        if (ctx != null) {
+            DfuServiceListenerHelper.unregisterProgressListener(ctx, mDfuProgressListener);
+        }
     }
-
 
     /**
      * The progress listener receives events from the DFU Service.
